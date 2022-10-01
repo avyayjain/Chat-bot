@@ -1,5 +1,5 @@
 import speech_recognition as sr
-import datetime as dt
+import datetime 
 import webbrowser as wb
 import os 
 import pyttsx3  
@@ -9,16 +9,13 @@ import pyjokes as pj
 import smtplib
 import requests
 from bs4 import BeautifulSoup
+import winsound
+import operator
+
+
 
 engine = pyttsx3.init()
 
-def sendmail():
-    recivers = ['avyay.jain2001@gmail.com','rajatthakurk@gmail.com','aryanverma2612001@gmail.com']
-    a = smtplib.SMTP('smtp.gmail.com',587)
-    a.starttls()
-    a.login('EMAIL ID','PASSWORD')
-    a.sendmail('avyay.jain2001@gmail.com',recivers,'test message')
-    a.quit()
 
 def search():
     speech("enter the topic you want to search on wikipedia  ")
@@ -30,7 +27,7 @@ def search():
     speech(results)
 
 def wishMe():
-    hour = int(dt.datetime.now().hour)
+    hour = int(datetime.datetime.now().hour)
 
     if(hour >= 0 and hour <12 ):
         wish = 'good morning'
@@ -64,7 +61,7 @@ def speech(audio):
     engine.runAndWait()
 
 def dateAndTime():
-        time = dt.datetime.now().strftime("%Y\n %B\n %A\n %I %M %S %Z")
+        time = datetime.datetime.now().strftime("%Y\n %B\n %A\n %I %M %S %Z")
         print(time)
         speech(time)
 
@@ -148,6 +145,52 @@ def weather():
  speech("sky description: "+sky)
  print(otherData)  
 
+def alarm(Timing):
+    
+    altime = str(datetime.datetime.now().strptime(Timing,"%I:%M %p"))
+
+
+    altime = altime[11:-3]
+    print(altime)
+    Horeal = altime[:2]
+    Horeal = int(Horeal)
+    Mireal = altime[3:5]
+    Mireal = int(Mireal)
+
+    print(f"Done, alarm is set for {Timing}")
+
+    while True:
+        if Horeal  == datetime.datetime.now().hour and Mireal  == datetime.datetime.now().minute:
+            print("alarm is running")
+            winsound.PlaySound('abc',winsound.SND_LOOP)
+
+        elif Mireal<datetime.datetime.now().minute:
+            break 
+
+def calculate():
+    r = sr.Recognizer()
+    with sr.Microphone( )as source:
+        speech("say what you want to calculate, example 3 plus 3")
+        print("Listening...")
+        r.adjust_for_ambient_noise(source)
+        audio = r.listen(source)
+        my_string = r.recognize_google(audio)
+        print(my_string)
+        def get_operator_fn(op):
+            return{
+                '+':operator.add,
+                '-':operator.sub,
+                '*':operator.mul,
+                'divided':operator.__truediv__,
+            }[op]
+        def evel_binary(op1,oper,op2):
+            op1,op2 = int(op1),int(op2)
+            return get_operator_fn(oper)(op1,op2)
+        speech("your result is ")
+        speech(evel_binary(*(my_string.split())))
+
+
+
 
 wish = wishMe()
 print(wish)
@@ -164,8 +207,6 @@ while True:
  elif 'google' in speechinput:
      google()
 
- elif 'exit' in speechinput:
-     exit()
 
  elif 'play music' in speechinput:
      playmusic()
@@ -176,16 +217,16 @@ while True:
  elif 'open chrome' in speechinput:
      chrome()
 
- elif 'search' in speechinput:
+ elif 'search' in speechinput:#wikipedia
      search()    
 
  elif 'tell me a joke' in speechinput:
      joke()
 
- elif 'send mail' in speechinput:
-     sendmail()
 
  elif 'exit' in speechinput:
+     speech("goodbye sir going off duty")
+     print("goodbye sir going off duty")
      exit()        
 
  elif 'search on web' in speechinput:
@@ -199,12 +240,15 @@ while True:
 
  elif'who made you' in speechinput:
      speech('i was made by avyay jain')
-
- elif'what is my name' in speechinput:
-     speech('my name is avyay jain') 
-
  
+ elif 'alarm' in speechinput:
+    speech("say set alarm for 5:30 am ")
+    print("say set alarm for 5:30 am")
+    tt = takeCommand()
+    tt = tt.replace("set alarm to ","")
+    tt = tt.replace(".","")
+    tt = tt.upper()
+    alarm(tt)
 
- 
- 
-
+ elif'calculate' in speechinput:
+     calculate()
